@@ -19,10 +19,12 @@ body{background:var(--c-bg);display:flex;justify-content:center;align-items:flex
 .music-artist{color:var(--c-text-muted)}
 .music-edit-hint{display:none;position:absolute;right:-4px;top:-6px;background:var(--c-primary-dark);color:#fff;font-size:.55rem;padding:2px 6px;border-radius:4px;cursor:pointer;z-index:25}
 body.edit-mode .music-edit-hint{display:block}
-.nav-actions{display:flex;align-items:center;gap:12px}
+.nav-actions{display:flex;align-items:center;gap:8px}
 .mode-toggle{display:flex;background:rgba(107,155,210,.1);border-radius:20px;padding:4px;cursor:pointer;border:1px solid rgba(107,155,210,.2)}
 .mode-btn{padding:5px 12px;border-radius:16px;font-size:.75rem;font-weight:600;color:var(--c-text-sub);transition:all .2s}
 .mode-btn.active{background:var(--c-surface);color:var(--c-primary-dark);box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.export-top-btn{background:var(--c-primary);color:#fff;border:none;padding:6px 10px;border-radius:16px;font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.export-top-btn:hover{background:var(--c-primary-dark)}
 .profile-cover{height:150px;background:#e2e8f0;position:relative;background-size:cover;background-position:center;background-repeat:no-repeat}
 .profile-cover::after{content:"✦ ✧";position:absolute;top:15px;right:20px;font-size:1.2rem;color:rgba(255,255,255,.7);letter-spacing:8px;pointer-events:none;text-shadow:0 0 4px rgba(0,0,0,.2)}
 .cover-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);color:#fff;display:none;align-items:center;justify-content:center;font-weight:600;cursor:pointer;z-index:1;font-size:.9rem}
@@ -143,11 +145,9 @@ body.edit-mode .add-acc-btn{display:block}
 .preview-slide img{max-width:95%;max-height:90%;object-fit:contain;border-radius:4px;pointer-events:none}
 .preview-indicator{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.8);font-size:.85rem;background:rgba(0,0,0,.5);padding:4px 12px;border-radius:20px;pointer-events:none}
 .preview-close-btn{position:absolute;top:20px;right:20px;color:rgba(255,255,255,.8);font-size:2rem;cursor:pointer;z-index:10000;padding:10px;line-height:1}
-.export-btn{position:fixed;right:12px;bottom:12px;z-index:9999;background:var(--c-primary);color:#fff;padding:10px 14px;border-radius:8px;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.export-btn:hover{background:var(--c-primary-dark)}
 .loading-tip{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.6);color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;z-index:10001;display:none}
 @media(max-width:500px){
-.navbar{padding:12px 16px}.profile-cover{height:120px}.profile-header{padding:0 16px;margin-top:-40px}.avatar{width:80px;height:80px}.display-name{font-size:1.3rem}.tab{padding:12px 4px 10px;font-size:.75rem}.panel-scroll{padding:12px 12px 30px}.feed-text{font-size:.8rem}.music-title{max-width:80px;font-size:.65rem}.music-btn{width:30px;height:30px;font-size:.9rem}
+.navbar{padding:12px 16px}.profile-cover{height:120px}.profile-header{padding:0 16px;margin-top:-40px}.avatar{width:80px;height:80px}.display-name{font-size:1.3rem}.tab{padding:12px 4px 10px;font-size:.75rem}.panel-scroll{padding:12px 12px 30px}.feed-text{font-size:.8rem}.music-title{max-width:80px;font-size:.65rem}.music-btn{width:30px;height:30px;font-size:.9rem}.export-top-btn{padding:5px 8px;font-size:.65rem}
 }
 </style>
 </head>
@@ -169,6 +169,7 @@ body.edit-mode .add-acc-btn{display:block}
         <div class="mode-btn active" data-mode="preview">预览</div>
         <div class="mode-btn" data-mode="edit">编辑</div>
       </div>
+      <button id="exportDataBtn" class="export-top-btn">导出</button>
     </div>
   </div>
 
@@ -237,7 +238,7 @@ body.edit-mode .add-acc-btn{display:block}
   <div class="pwd-card edit-text-modal">
     <div class="pwd-icon"><i class="fas fa-pen-nib"></i></div>
     <div class="pwd-title">修改文字内容</div>
-    <div class="pwd-desc">保存后请点右下角“导出数据”</div>
+    <div class="pwd-desc">保存后请点右上角“导出”</div>
     <textarea id="textEditArea"></textarea>
     <div class="pwd-actions">
       <button class="pwd-btn pwd-btn-cancel" onclick="document.getElementById('textEditOverlay').classList.remove('active')">取消</button>
@@ -283,8 +284,6 @@ body.edit-mode .add-acc-btn{display:block}
 </div>
 
 <input type="file" id="globalImgInput" accept="image/*" multiple class="hidden-file">
-
-<div class="export-btn" id="exportDataBtn">导出数据</div>
 <div class="loading-tip" id="loadingTip">正在加载 data.json...</div>
 
 <script>

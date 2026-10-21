@@ -24,7 +24,6 @@ body.edit-mode .music-edit-hint{display:block}
 .mode-btn{padding:5px 12px;border-radius:16px;font-size:.75rem;font-weight:600;color:var(--c-text-sub);transition:all .2s}
 .mode-btn.active{background:var(--c-surface);color:var(--c-primary-dark);box-shadow:0 2px 6px rgba(0,0,0,.05)}
 .export-top-btn{background:var(--c-primary);color:#fff;border:none;padding:6px 10px;border-radius:16px;font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.export-top-btn:hover{background:var(--c-primary-dark)}
 .profile-cover{height:150px;background:#e2e8f0;position:relative;background-size:cover;background-position:center;background-repeat:no-repeat}
 .profile-cover::after{content:"✦ ✧";position:absolute;top:15px;right:20px;font-size:1.2rem;color:rgba(255,255,255,.7);letter-spacing:8px;pointer-events:none;text-shadow:0 0 4px rgba(0,0,0,.2)}
 .cover-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);color:#fff;display:none;align-items:center;justify-content:center;font-weight:600;cursor:pointer;z-index:1;font-size:.9rem}
@@ -52,12 +51,15 @@ body.edit-mode .stat-number{background:rgba(255,255,255,.6);border:1px dashed va
 .bio span{display:flex;align-items:center;gap:5px;font-weight:500;outline:none}
 .join-date{margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;font-size:.75rem;color:var(--c-text-sub);outline:none}
 body.edit-mode .display-name,body.edit-mode .username,body.edit-mode .custom-signature,body.edit-mode .bio span,body.edit-mode .join-date{background:rgba(255,255,255,.6);border:1px dashed var(--c-primary-light);cursor:text}
-.profile-tabs{display:flex;border-bottom:1px solid var(--c-border);padding:0 8px;background:rgba(255,255,255,.8);position:sticky;top:60px;z-index:15;backdrop-filter:blur(8px);justify-content:space-around}
-.tab{padding:14px 8px 12px;font-weight:700;font-size:.85rem;color:var(--c-text-sub);border-bottom:3px solid transparent;cursor:pointer;flex:1;text-align:center;white-space:nowrap}
+.profile-tabs{display:flex;border-bottom:1px solid var(--c-border);padding:0 8px;background:rgba(255,255,255,.8);position:sticky;top:60px;z-index:15;backdrop-filter:blur(8px);overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x}
+.profile-tabs::-webkit-scrollbar{display:none}
+.tab{padding:14px 8px 12px;font-weight:700;font-size:.85rem;color:var(--c-text-sub);border-bottom:3px solid transparent;cursor:pointer;flex:0 0 auto;min-width:64px;text-align:center;white-space:nowrap;outline:none;border-radius:6px 6px 0 0;user-select:none}
 .tab.active{color:var(--c-primary-dark);border-bottom-color:var(--c-primary-dark);font-weight:800}
+body.edit-mode .tab{background:rgba(255,255,255,.6);border:1px dashed var(--c-primary-light);cursor:pointer}
+body.edit-mode .tab[contenteditable="true"]{cursor:text;user-select:text}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
-.panel-scroll{padding:16px 16px 30px}
+.panel-scroll{padding:16px 16px 30px;-webkit-overflow-scrolling:touch}
 .design-post{display:flex;flex-direction:column;gap:16px}
 .feed-item{display:flex;flex-direction:column;gap:10px;padding:12px 0;border-bottom:1px dashed var(--c-border);position:relative}
 .feed-item.pinned{background:rgba(255,250,240,.8);border-radius:12px;padding:12px;margin:4px 0;border:1px solid rgba(255,215,0,.3)}
@@ -104,7 +106,7 @@ body.edit-mode .feed-actions-row{display:flex}
 body.edit-mode .add-actions{display:flex}
 .add-new-feed-btn{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:12px;background:rgba(245,249,255,.6);border:2px dashed var(--c-primary-light);border-radius:12px;color:var(--c-primary-dark);font-weight:700;cursor:pointer;font-size:.8rem}
 .add-new-feed-btn i{font-size:1.2rem;margin-bottom:6px}
-.accordion-item{background:#fff;border-radius:14px;margin-bottom:12px;border:1px solid var(--c-border);overflow:hidden}
+.accordion-item{background:#fff;border-radius:14px;margin-bottom:12px;border:1px solid var(--c-border);overflow:hidden;position:relative}
 .accordion-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:rgba(250,253,255,.9)}
 .accordion-icon{width:30px;height:30px;border-radius:10px;background:rgba(107,155,210,.1);color:var(--c-primary);display:flex;align-items:center;justify-content:center;font-size:.9rem}
 .accordion-title{font-weight:700;font-size:.9rem;flex:1;outline:none;border-radius:4px;padding:2px 4px;margin-left:-4px}
@@ -113,8 +115,10 @@ body.edit-mode .accordion-title{background:rgba(255,255,255,.8);border:1px dashe
 .accordion-item.active .accordion-arrow{transform:rotate(180deg)}
 .accordion-body{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s;padding:0 16px}
 .accordion-item.active .accordion-body{max-height:500px;padding:0 16px 16px}
-.accordion-desc{font-size:.85rem;color:var(--c-text-sub);line-height:1.6;border-top:1px dashed var(--c-border);padding-top:12px;outline:none;max-height:200px;overflow-y:auto;padding-right:6px}
+.accordion-desc{font-size:.85rem;color:var(--c-text-sub);line-height:1.6;border-top:1px dashed var(--c-border);padding-top:12px;outline:none;max-height:200px;overflow-y:auto;padding-right:6px;-webkit-overflow-scrolling:touch}
 body.edit-mode .accordion-desc{background:#f8fbff;border-radius:8px;padding:10px;border:1px solid var(--c-primary-light);cursor:text}
+.acc-delete-btn{display:none;position:absolute;top:8px;right:8px;width:22px;height:22px;background:rgba(239,68,68,.9);color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;z-index:20}
+body.edit-mode .accordion-item:hover .acc-delete-btn{display:flex}
 .add-acc-btn{display:none;width:100%;padding:12px;background:rgba(245,249,255,.6);border:2px dashed var(--c-primary-light);border-radius:12px;color:var(--c-primary-dark);font-weight:700;cursor:pointer;text-align:center;font-size:.8rem;margin-top:16px}
 body.edit-mode .add-acc-btn{display:block}
 .end-note{text-align:center;padding:20px 0 40px;color:var(--c-text-muted);font-size:.75rem}
@@ -147,7 +151,7 @@ body.edit-mode .add-acc-btn{display:block}
 .preview-close-btn{position:absolute;top:20px;right:20px;color:rgba(255,255,255,.8);font-size:2rem;cursor:pointer;z-index:10000;padding:10px;line-height:1}
 .loading-tip{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.6);color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;z-index:10001;display:none}
 @media(max-width:500px){
-.navbar{padding:12px 16px}.profile-cover{height:120px}.profile-header{padding:0 16px;margin-top:-40px}.avatar{width:80px;height:80px}.display-name{font-size:1.3rem}.tab{padding:12px 4px 10px;font-size:.75rem}.panel-scroll{padding:12px 12px 30px}.feed-text{font-size:.8rem}.music-title{max-width:80px;font-size:.65rem}.music-btn{width:30px;height:30px;font-size:.9rem}.export-top-btn{padding:5px 8px;font-size:.65rem}
+.navbar{padding:12px 16px}.profile-cover{height:120px}.profile-header{padding:0 16px;margin-top:-40px}.avatar{width:80px;height:80px}.display-name{font-size:1.3rem}.tab{padding:12px 6px 10px;font-size:.75rem;min-width:56px}.panel-scroll{padding:12px 12px 30px}.feed-text{font-size:.8rem}.music-title{max-width:80px;font-size:.65rem}.music-btn{width:30px;height:30px;font-size:.9rem}.export-top-btn{padding:5px 8px;font-size:.65rem}
 }
 </style>
 </head>
@@ -199,23 +203,8 @@ body.edit-mode .add-acc-btn{display:block}
     <div class="join-date" id="editJoinDate" contenteditable="false"></div>
   </div>
 
-  <div class="profile-tabs" id="tabsContainer">
-    <div class="tab active" data-tab="tab1">日常</div>
-    <div class="tab" data-tab="tab2">须知</div>
-    <div class="tab" data-tab="tab3">头牌</div>
-    <div class="tab" data-tab="tab4">板评</div>
-    <div class="tab" data-tab="tab5">话术</div>
-    <div class="tab" data-tab="tab6">冠名</div>
-  </div>
-
-  <div class="tab-panels">
-    <div class="tab-panel active" id="tab1"><div class="panel-scroll"><div class="design-post" id="feed-post-1"></div></div></div>
-    <div class="tab-panel" id="tab2"><div class="panel-scroll"><div id="accordionContainer"></div><div class="add-acc-btn" onclick="openAddAccordionModal()">+ 添加新版块</div></div></div>
-    <div class="tab-panel" id="tab3"><div class="panel-scroll"><div class="design-post" id="feed-post-3"></div></div></div>
-    <div class="tab-panel" id="tab4"><div class="panel-scroll"><div class="design-post" id="feed-post-4"></div></div></div>
-    <div class="tab-panel" id="tab5"><div class="panel-scroll"><div class="design-post" id="feed-post-5"></div></div></div>
-    <div class="tab-panel" id="tab6"><div class="panel-scroll"><div class="design-post" id="feed-post-6"></div></div></div>
-  </div>
+  <div class="profile-tabs" id="tabsContainer"></div>
+  <div class="tab-panels" id="tabPanels"></div>
 
   <div class="end-note"><i class="fas fa-circle"></i> 已经到底了</div>
 </div>
@@ -298,15 +287,23 @@ const SITE_DATA = {
   cover:"",
   avatar:"",
   music:{id:"29722012",title:"新地球",artist:"林俊杰"},
+  tabs:[
+    {id:"tab1",title:"日常",type:"feed"},
+    {id:"tab2",title:"须知",type:"accordion"},
+    {id:"tab3",title:"头牌",type:"feed"},
+    {id:"tab4",title:"板评",type:"feed"},
+    {id:"tab5",title:"话术",type:"feed"},
+    {id:"tab6",title:"冠名",type:"feed"}
+  ],
   feeds:{
-    "feed-post-1":[
+    "tab1":[
       {type:"text-img",text:"我拍下这张照片的时候，你还在我身边。现在照片还在，你走了。原来有些画面，从一开始就是用来怀念的。🖤",img:[],timestamp:1700000000000,pinned:false},
       {type:"text-img",text:"你走之后，我学会了在凌晨三点给自己煮面，加两个荷包蛋，一个给你留着，凉了再倒掉。这个习惯，我改了很久都没改掉。",img:[],timestamp:1699900000000,pinned:false}
     ],
-    "feed-post-3":[{type:"text-img",text:"收录了一些空洞的几何轨迹。",img:[],timestamp:1699800000000,pinned:false}],
-    "feed-post-4":[{type:"text-img",text:"“你问我还爱不爱你，我说不爱了。”",img:[],timestamp:1699700000000,pinned:false}],
-    "feed-post-5":[{type:"text-img",text:"“我没有在等你，我只是暂时还没办法喜欢上别人。”",img:[],timestamp:1699600000000,pinned:false}],
-    "feed-post-6":[{type:"text-img",text:"感谢「星海旅团」为本频道提供的独家冠名支持。",img:[],timestamp:1699500000000,pinned:false}]
+    "tab3":[{type:"text-img",text:"收录了一些空洞的几何轨迹。",img:[],timestamp:1699800000000,pinned:false}],
+    "tab4":[{type:"text-img",text:"“你问我还爱不爱你，我说不爱了。”",img:[],timestamp:1699700000000,pinned:false}],
+    "tab5":[{type:"text-img",text:"“我没有在等你，我只是暂时还没办法喜欢上别人。”",img:[],timestamp:1699600000000,pinned:false}],
+    "tab6":[{type:"text-img",text:"感谢「星海旅团」为本频道提供的独家冠名支持。",img:[],timestamp:1699500000000,pinned:false}]
   },
   accordion:[
     {id:1,title:"互动指南与边界感",content:"欢迎来到琥珀的星空。私信前请先看主页简介，不接急单，不聊无关话题。感谢理解与尊重。"},
@@ -326,6 +323,8 @@ const SITE_DATA = {
         const json = await resp.json();
         if(json && typeof json === 'object' && Object.keys(json).length){
           DATA = json;
+          if(!DATA.tabs || !DATA.tabs.length) DATA.tabs = JSON.parse(JSON.stringify(SITE_DATA.tabs));
+          if(!DATA.feeds) DATA.feeds = {};
           console.log('已从 data.json 加载数据');
         }
       }
@@ -424,7 +423,7 @@ const SITE_DATA = {
   document.addEventListener('contextmenu', e => { if(e.target.tagName === 'IMG') e.preventDefault(); });
 
   let currentPostIndex = -1, currentImageIndex = -1, currentEditingPostId = null, currentEditingIndex = null;
-  let uploadPostId = 'feed-post-1';
+  let uploadPostId = null;
   const SECRET_KEY = '3344';
 
   function formatTimeAgo(ts){
@@ -474,6 +473,103 @@ const SITE_DATA = {
     const av = document.getElementById('mainAvatarImg');
     if(DATA.avatar){ av.src = DATA.avatar; document.getElementById('mainAvatar').classList.add('has-img'); }
     else { av.src = ''; document.getElementById('mainAvatar').classList.remove('has-img'); }
+  }
+
+  let activeTabId = (DATA.tabs && DATA.tabs[0]) ? DATA.tabs[0].id : 'tab1';
+
+  function switchTab(id){
+    activeTabId = id;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === id));
+    const targetTab = DATA.tabs.find(t => t.id === id);
+    if(targetTab){
+      if(targetTab.type === 'accordion') renderAccordion();
+      else renderFeeds(id, 'feed-' + id);
+    }
+  }
+
+  function renderTabs(){
+    const tabsContainer = document.getElementById('tabsContainer');
+    const panelsContainer = document.getElementById('tabPanels');
+    tabsContainer.innerHTML = '';
+    panelsContainer.innerHTML = '';
+    if(!DATA.tabs || !DATA.tabs.length){
+      DATA.tabs = JSON.parse(JSON.stringify(SITE_DATA.tabs));
+    }
+    if(!DATA.tabs.some(t => t.id === activeTabId)) activeTabId = DATA.tabs[0].id;
+
+    DATA.tabs.forEach((tab)=>{
+      const tabEl = document.createElement('div');
+      tabEl.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
+      tabEl.dataset.tab = tab.id;
+      tabEl.setAttribute('contenteditable', 'false');
+      tabEl.innerText = tab.title;
+
+      let tabClickTimer = null;
+      tabEl.addEventListener('click', function(e){
+        if(document.body.classList.contains('edit-mode')){
+          if(this.getAttribute('contenteditable') === 'true'){
+            return;
+          }
+          if(tabClickTimer){
+            clearTimeout(tabClickTimer);
+            tabClickTimer = null;
+            this.setAttribute('contenteditable', 'true');
+            this.focus();
+            return;
+          }
+          tabClickTimer = setTimeout(()=>{
+            tabClickTimer = null;
+            switchTab(tab.id);
+          }, 220);
+        } else {
+          switchTab(tab.id);
+        }
+      });
+
+      tabEl.addEventListener('blur', function(){
+        if(!document.body.classList.contains('edit-mode')) return;
+        if(this.getAttribute('contenteditable') !== 'true') return;
+        const newTitle = this.innerText.trim();
+        const found = DATA.tabs.find(t => t.id === tab.id);
+        if(found && newTitle){
+          found.title = newTitle;
+        } else if(found){
+          this.innerText = found.title;
+        }
+        this.setAttribute('contenteditable', 'false');
+      });
+
+      tabsContainer.appendChild(tabEl);
+
+      const panel = document.createElement('div');
+      panel.className = 'tab-panel' + (tab.id === activeTabId ? ' active' : '');
+      panel.id = tab.id;
+      const scroll = document.createElement('div');
+      scroll.className = 'panel-scroll';
+      if(tab.type === 'accordion'){
+        const accContainer = document.createElement('div');
+        accContainer.id = 'accordionContainer';
+        scroll.appendChild(accContainer);
+        const addBtn = document.createElement('div');
+        addBtn.className = 'add-acc-btn';
+        addBtn.innerText = '+ 添加新版块';
+        addBtn.onclick = ()=> window.openAddAccordionModal();
+        scroll.appendChild(addBtn);
+      } else {
+        const post = document.createElement('div');
+        post.className = 'design-post';
+        post.id = 'feed-' + tab.id;
+        scroll.appendChild(post);
+      }
+      panel.appendChild(scroll);
+      panelsContainer.appendChild(panel);
+    });
+
+    DATA.tabs.forEach(tab=>{
+      if(tab.type === 'accordion') renderAccordion();
+      else renderFeeds(tab.id, 'feed-' + tab.id);
+    });
   }
 
   function renderFeeds(postId, containerId){
@@ -636,20 +732,30 @@ const SITE_DATA = {
   }
 
   function initAllFeeds(){
-    renderFeeds('feed-post-1', 'feed-post-1');
-    document.getElementById('statPosts').textContent = (DATA.feeds['feed-post-1'] || []).length;
-    ['feed-post-3', 'feed-post-4', 'feed-post-5', 'feed-post-6'].forEach(id => renderFeeds(id, id));
+    DATA.tabs.forEach(tab=>{
+      if(tab.type !== 'accordion') renderFeeds(tab.id, 'feed-' + tab.id);
+    });
+    const firstFeed = DATA.tabs.find(t => t.type !== 'accordion');
+    if(firstFeed){
+      document.getElementById('statPosts').textContent = (DATA.feeds[firstFeed.id] || []).length;
+    }
   }
 
   function renderAccordion(){
     const container = document.getElementById('accordionContainer');
+    if(!container) return;
     container.innerHTML = '';
+    if(!DATA.accordion) DATA.accordion = [];
     DATA.accordion.forEach((item, index)=>{
       const acc = document.createElement('div');
       acc.className = 'accordion-item';
       const header = document.createElement('div');
       header.className = 'accordion-header';
-      header.onclick = ()=> acc.classList.toggle('active');
+      header.onclick = (e)=>{
+        if(e.target.closest('.acc-delete-btn')) return;
+        if(e.target.closest('.accordion-title') && document.body.classList.contains('edit-mode')) return;
+        acc.classList.toggle('active');
+      };
       header.innerHTML = `<div class="accordion-icon"><i class="fas fa-book-open"></i></div>`;
       const title = document.createElement('div');
       title.className = 'accordion-title';
@@ -662,6 +768,19 @@ const SITE_DATA = {
       header.appendChild(title);
       header.innerHTML += '<i class="fas fa-chevron-down accordion-arrow"></i>';
       acc.appendChild(header);
+
+      const delBtn = document.createElement('div');
+      delBtn.className = 'acc-delete-btn';
+      delBtn.innerHTML = '<i class="fas fa-times"></i>';
+      delBtn.onclick = (e)=>{
+        e.stopPropagation();
+        if(!document.body.classList.contains('edit-mode')) return;
+        if(confirm('确定删除这个须知版块吗？')){
+          DATA.accordion.splice(index, 1);
+          renderAccordion();
+        }
+      };
+      acc.appendChild(delBtn);
 
       const body = document.createElement('div');
       body.className = 'accordion-body';
@@ -689,6 +808,7 @@ const SITE_DATA = {
     const title = document.getElementById('newAccTitle').value.trim();
     const content = document.getElementById('newAccContent').value.trim();
     if(!title){ alert('请输入标题'); return; }
+    if(!DATA.accordion) DATA.accordion = [];
     DATA.accordion.push({ id: Date.now(), title, content: content || '暂无内容' });
     renderAccordion();
     document.getElementById('addAccOverlay').classList.remove('active');
@@ -705,10 +825,13 @@ const SITE_DATA = {
       body.classList.add('edit-mode');
       document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'true'));
       document.querySelectorAll('.feed-text').forEach(el => el.setAttribute('contenteditable', 'true'));
+      document.querySelectorAll('.accordion-title, .accordion-desc').forEach(el => el.setAttribute('contenteditable', 'true'));
     } else {
       body.classList.remove('edit-mode');
       document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
       document.querySelectorAll('.feed-text').forEach(el => el.setAttribute('contenteditable', 'false'));
+      document.querySelectorAll('.accordion-title, .accordion-desc').forEach(el => el.setAttribute('contenteditable', 'false'));
+      document.querySelectorAll('.tab').forEach(el => el.setAttribute('contenteditable', 'false'));
     }
     renderProfile();
     initAllFeeds();
@@ -749,7 +872,7 @@ const SITE_DATA = {
         feeds[currentEditingIndex].text = val;
         if(!val.trim()) feeds[currentEditingIndex].type = 'img';
         else if(feeds[currentEditingIndex].type === 'img') feeds[currentEditingIndex].type = 'text-img';
-        renderFeeds(currentEditingPostId, currentEditingPostId);
+        renderFeeds(currentEditingPostId, 'feed-' + currentEditingPostId);
       }
     }
     document.getElementById('textEditOverlay').classList.remove('active');
@@ -804,8 +927,8 @@ const SITE_DATA = {
   const globalImgInput = document.getElementById('globalImgInput');
   globalImgInput.addEventListener('change', async function(e){
     const files = e.target.files;
-    if(!files || !files.length || currentPostIndex === -1) return;
-    const feeds = DATA.feeds[uploadPostId || 'feed-post-1'];
+    if(!files || !files.length || currentPostIndex === -1 || !uploadPostId) return;
+    const feeds = DATA.feeds[uploadPostId];
     if(!feeds || !feeds[currentPostIndex]){ this.value = ''; return; }
     if(currentImageIndex === -1){
       const remain = 3 - feeds[currentPostIndex].img.length;
@@ -816,28 +939,17 @@ const SITE_DATA = {
       feeds[currentPostIndex].img[currentImageIndex] = await compressImage(files[0]);
     }
     this.value = '';
-    const pid = uploadPostId || 'feed-post-1';
-    renderFeeds(pid, pid);
+    renderFeeds(uploadPostId, 'feed-' + uploadPostId);
   });
 
   document.querySelectorAll('.design-post').forEach(el=>{
-    el.addEventListener('click', ()=>{ uploadPostId = el.id; }, true);
-  });
-
-  document.querySelectorAll('.tab').forEach(tab=>{
-    tab.addEventListener('click', function(){
-      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-      this.classList.add('active');
-      document.getElementById(this.dataset.tab).classList.add('active');
-    });
+    el.addEventListener('click', ()=>{ uploadPostId = el.id.replace('feed-', ''); }, true);
   });
 
   (async function init(){
     await loadFromJson();
     renderProfile();
-    initAllFeeds();
-    renderAccordion();
+    renderTabs();
     setMode('preview');
   })();
 })();

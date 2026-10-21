@@ -55,8 +55,6 @@ body.edit-mode .display-name,body.edit-mode .username,body.edit-mode .custom-sig
 .profile-tabs::-webkit-scrollbar{display:none}
 .tab{padding:14px 8px 12px;font-weight:700;font-size:.85rem;color:var(--c-text-sub);border-bottom:3px solid transparent;cursor:pointer;flex:0 0 auto;min-width:64px;text-align:center;white-space:nowrap;outline:none;border-radius:6px 6px 0 0;user-select:none}
 .tab.active{color:var(--c-primary-dark);border-bottom-color:var(--c-primary-dark);font-weight:800}
-body.edit-mode .tab{background:rgba(255,255,255,.6);border:1px dashed var(--c-primary-light);cursor:pointer}
-body.edit-mode .tab[contenteditable="true"]{cursor:text;user-select:text}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 .panel-scroll{padding:16px 16px 30px;-webkit-overflow-scrolling:touch}
@@ -292,7 +290,7 @@ const SITE_DATA = {
     {id:"tab2",title:"须知",type:"accordion"},
     {id:"tab3",title:"头牌",type:"feed"},
     {id:"tab4",title:"板评",type:"feed"},
-    {id:"tab5",title:"话术",type:"feed"},
+    {id:"tab5",title:"游戏",type:"feed"},
     {id:"tab6",title:"冠名",type:"feed"}
   ],
   feeds:{
@@ -302,7 +300,7 @@ const SITE_DATA = {
     ],
     "tab3":[{type:"text-img",text:"收录了一些空洞的几何轨迹。",img:[],timestamp:1699800000000,pinned:false}],
     "tab4":[{type:"text-img",text:"“你问我还爱不爱你，我说不爱了。”",img:[],timestamp:1699700000000,pinned:false}],
-    "tab5":[{type:"text-img",text:"“我没有在等你，我只是暂时还没办法喜欢上别人。”",img:[],timestamp:1699600000000,pinned:false}],
+    "tab5":[{type:"text-img",text:"游戏板块内容。",img:[],timestamp:1699600000000,pinned:false}],
     "tab6":[{type:"text-img",text:"感谢「星海旅团」为本频道提供的独家冠名支持。",img:[],timestamp:1699500000000,pinned:false}]
   },
   accordion:[
@@ -502,44 +500,8 @@ const SITE_DATA = {
       const tabEl = document.createElement('div');
       tabEl.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
       tabEl.dataset.tab = tab.id;
-      tabEl.setAttribute('contenteditable', 'false');
       tabEl.innerText = tab.title;
-
-      let tabClickTimer = null;
-      tabEl.addEventListener('click', function(e){
-        if(document.body.classList.contains('edit-mode')){
-          if(this.getAttribute('contenteditable') === 'true'){
-            return;
-          }
-          if(tabClickTimer){
-            clearTimeout(tabClickTimer);
-            tabClickTimer = null;
-            this.setAttribute('contenteditable', 'true');
-            this.focus();
-            return;
-          }
-          tabClickTimer = setTimeout(()=>{
-            tabClickTimer = null;
-            switchTab(tab.id);
-          }, 220);
-        } else {
-          switchTab(tab.id);
-        }
-      });
-
-      tabEl.addEventListener('blur', function(){
-        if(!document.body.classList.contains('edit-mode')) return;
-        if(this.getAttribute('contenteditable') !== 'true') return;
-        const newTitle = this.innerText.trim();
-        const found = DATA.tabs.find(t => t.id === tab.id);
-        if(found && newTitle){
-          found.title = newTitle;
-        } else if(found){
-          this.innerText = found.title;
-        }
-        this.setAttribute('contenteditable', 'false');
-      });
-
+      tabEl.addEventListener('click', function(){ switchTab(tab.id); });
       tabsContainer.appendChild(tabEl);
 
       const panel = document.createElement('div');
@@ -831,7 +793,6 @@ const SITE_DATA = {
       document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
       document.querySelectorAll('.feed-text').forEach(el => el.setAttribute('contenteditable', 'false'));
       document.querySelectorAll('.accordion-title, .accordion-desc').forEach(el => el.setAttribute('contenteditable', 'false'));
-      document.querySelectorAll('.tab').forEach(el => el.setAttribute('contenteditable', 'false'));
     }
     renderProfile();
     initAllFeeds();
@@ -940,10 +901,6 @@ const SITE_DATA = {
     }
     this.value = '';
     renderFeeds(uploadPostId, 'feed-' + uploadPostId);
-  });
-
-  document.querySelectorAll('.design-post').forEach(el=>{
-    el.addEventListener('click', ()=>{ uploadPostId = el.id.replace('feed-', ''); }, true);
   });
 
   (async function init(){

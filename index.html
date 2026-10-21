@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Amber's Starry Sky</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+:root{--c-bg:#f8fafc;--c-surface:#fff;--c-primary:#6b9bd2;--c-primary-light:#8cb3db;--c-primary-dark:#4a7bb0;--c-text-main:#1e3a5f;--c-text-sub:#5a7898;--c-text-muted:#8ba5c2;--c-border:rgba(180,210,240,.6);--radius-pill:50px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'PingFang SC','Helvetica Neue',system-ui,sans-serif}
+body{background:var(--c-bg);display:flex;justify-content:center;align-items:flex-start;min-height:100vh;color:var(--c-text-main)}
+.homepage{max-width:100%;width:100%;background:var(--c-surface);min-height:100vh;position:relative;box-shadow:0 0 40px rgba(0,0,0,.02);border-left:1px solid rgba(0,0,0,.03);border-right:1px solid rgba(0,0,0,.03)}
+@media(min-width:641px){.homepage{max-width:640px;border-radius:0 0 20px 20px;margin-top:20px}}
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--c-border);position:sticky;top:0;z-index:20}
+.music-player{display:flex;align-items:center;gap:10px;position:relative}
+.music-btn{background:linear-gradient(135deg,var(--c-primary-light),var(--c-primary));color:#fff;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:1rem;transform:rotate(-3deg);cursor:pointer;transition:all .2s;box-shadow:0 2px 6px rgba(107,155,210,.4);flex-shrink:0}
+.music-info{display:flex;flex-direction:row;align-items:center;gap:6px;font-size:.7rem;line-height:1.2}
+.music-title{font-weight:800;color:var(--c-text-main);max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.music-artist{color:var(--c-text-muted)}
+.music-edit-hint{display:none;position:absolute;right:-4px;top:-6px;background:var(--c-primary-dark);color:#fff;font-size:.55rem;padding:2px 6px;border-radius:4px;cursor:pointer;z-index:25}
+body.edit-mode .music-edit-hint{display:block}
+.nav-actions{display:flex;align-items:center;gap:12px}
+.mode-toggle{display:flex;background:rgba(107,155,210,.1);border-radius:20px;padding:4px;cursor:pointer;border:1px solid rgba(107,155,210,.2)}
+.mode-btn{padding:5px 12px;border-radius:16px;font-size:.75rem;font-weight:600;color:var(--c-text-sub);transition:all .2s}
+.mode-btn.active{background:var(--c-surface);color:var(--c-primary-dark);box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.profile-cover{height:150px;background:#e2e8f0;position:relative;background-size:cover;background-position:center;background-repeat:no-repeat}
+.profile-cover::after{content:"✦ ✧";position:absolute;top:15px;right:20px;font-size:1.2rem;color:rgba(255,255,255,.7);letter-spacing:8px;pointer-events:none;text-shadow:0 0 4px rgba(0,0,0,.2)}
+.cover-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);color:#fff;display:none;align-items:center;justify-content:center;font-weight:600;cursor:pointer;z-index:1;font-size:.9rem}
+.cover-edit-overlay i{font-size:1.5rem;margin-right:8px}
+body.edit-mode .profile-cover:hover .cover-edit-overlay{display:flex}
+.profile-header{padding:0 20px;display:flex;align-items:flex-end;margin-top:-45px;position:relative;z-index:5}
+.avatar-wrapper{position:relative;margin-right:16px;flex-shrink:0}
+.avatar{width:90px;height:90px;border-radius:50%;border:3px solid #fff;box-shadow:0 8px 20px -6px rgba(30,58,95,.3),0 0 0 3px rgba(200,230,255,.5);background-color:#cce0f5;background-image:radial-gradient(circle at 50% 0%,#b8dcfc 0%,#6b9bd2 100%);background-size:cover;background-position:center;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.avatar img{width:100%;height:100%;object-fit:cover;display:none}
+.avatar::after{content:"✦";position:absolute;top:15%;left:50%;transform:translateX(-50%);font-size:1.5rem;color:#fff;text-shadow:0 0 10px rgba(255,255,255,.8)}
+.avatar.has-img::after{display:none}
+.avatar.has-img img{display:block}
+.avatar-edit-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.4);color:#fff;display:none;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;z-index:10}
+body.edit-mode .avatar-wrapper:hover .avatar-edit-overlay{display:flex}
+.profile-stats{display:flex;gap:10px;margin-left:auto;padding-bottom:8px}
+.stat-item{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.8);padding:6px 12px;border-radius:var(--radius-pill);border:1px solid #fff}
+.stat-number{font-weight:800;font-size:1rem;outline:none;border-radius:4px;padding:0 4px}
+.stat-label{color:var(--c-text-muted);font-size:.65rem;font-weight:600}
+body.edit-mode .stat-number{background:rgba(255,255,255,.6);border:1px dashed var(--c-primary-light);cursor:text}
+.user-info{padding:14px 20px 16px}
+.display-name{font-size:1.4rem;font-weight:800;display:flex;align-items:center;gap:6px;outline:none;border-radius:8px;padding:2px 6px;margin-left:-6px}
+.username{color:var(--c-text-sub);font-size:.85rem;margin-top:4px;outline:none;border-radius:8px;padding:2px 6px;margin-left:-6px;display:inline-block}
+.custom-signature{margin-top:8px;font-size:.85rem;color:var(--c-text-sub);outline:none;border-radius:8px;padding:2px 6px;margin-left:-6px;display:inline-block}
+.bio{margin-top:12px;font-size:.85rem;line-height:1.5;background:linear-gradient(to right,rgba(240,248,255,.8),rgba(240,248,255,.4));padding:12px 14px;border-radius:14px;border-left:3px solid var(--c-primary);display:flex;flex-wrap:wrap;gap:10px 16px;outline:none}
+.bio span{display:flex;align-items:center;gap:5px;font-weight:500;outline:none}
+.join-date{margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;font-size:.75rem;color:var(--c-text-sub);outline:none}
+body.edit-mode .display-name,body.edit-mode .username,body.edit-mode .custom-signature,body.edit-mode .bio span,body.edit-mode .join-date{background:rgba(255,255,255,.6);border:1px dashed var(--c-primary-light);cursor:text}
+.profile-tabs{display:flex;border-bottom:1px solid var(--c-border);padding:0 8px;background:rgba(255,255,255,.8);position:sticky;top:60px;z-index:15;backdrop-filter:blur(8px);justify-content:space-around}
+.tab{padding:14px 8px 12px;font-weight:700;font-size:.85rem;color:var(--c-text-sub);border-bottom:3px solid transparent;cursor:pointer;flex:1;text-align:center;white-space:nowrap}
+.tab.active{color:var(--c-primary-dark);border-bottom-color:var(--c-primary-dark);font-weight:800}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.panel-scroll{padding:16px 16px 30px}
+.design-post{display:flex;flex-direction:column;gap:16px}
+.feed-item{display:flex;flex-direction:column;gap:10px;padding:12px 0;border-bottom:1px dashed var(--c-border);position:relative}
+.feed-item.pinned{background:rgba(255,250,240,.8);border-radius:12px;padding:12px;margin:4px 0;border:1px solid rgba(255,215,0,.3)}
+.pinned-badge{display:none;position:absolute;top:8px;right:12px;background:linear-gradient(135deg,#f6d365 0%,#fda085 100%);color:#fff;font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:20px;z-index:10}
+.feed-item.pinned .pinned-badge{display:block}
+.feed-header{display:flex;align-items:center;gap:10px;position:relative}
+.feed-avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;border:2px solid #fff;background-color:#cce0f5;background-image:radial-gradient(circle at 50% 0%,#b8dcfc 0%,#6b9bd2 100%);background-size:cover;background-position:center;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.feed-avatar img{width:100%;height:100%;object-fit:cover;display:none}
+.feed-avatar::after{content:"✦";position:absolute;top:15%;left:50%;transform:translateX(-50%);font-size:.8rem;color:#fff}
+.feed-avatar.has-img::after{display:none}
+.feed-avatar.has-img img{display:block}
+.feed-meta{display:flex;flex-direction:column;gap:2px}
+.feed-name{font-weight:800;font-size:.9rem}
+.feed-username{color:var(--c-text-sub);font-size:.7rem}
+.feed-time{color:var(--c-text-muted);font-size:.7rem;margin-left:auto;margin-right:60px}
+.feed-text-wrapper{position:relative;display:flex;align-items:flex-start;gap:8px;width:100%}
+.feed-text{font-size:.85rem;line-height:1.6;color:var(--c-text-main);outline:none;padding:4px;border-radius:4px;margin-bottom:4px;flex:1}
+.feed-text a,.accordion-desc a{color:var(--c-primary);text-decoration:underline;word-break:break-all}
+body.edit-mode .feed-text{background:rgba(255,255,255,.6);border:1px dashed var(--c-primary-light);cursor:text}
+.feed-text-edit-btn{display:none;background:var(--c-primary);color:#fff;border-radius:50%;width:24px;height:24px;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;flex-shrink:0;margin-top:2px}
+body.edit-mode .feed-text-edit-btn{display:flex}
+.feed-image-grid{display:grid;gap:6px;width:100%;margin-top:4px}
+.feed-image-grid[data-count="1"]{grid-template-columns:1fr}
+.feed-image-grid[data-count="2"]{grid-template-columns:repeat(2,1fr)}
+.feed-image-grid[data-count="3"]{grid-template-columns:repeat(3,1fr)}
+.grid-image-item{position:relative;width:100%;aspect-ratio:1/1;border-radius:6px;overflow:hidden;background:#f0f4f8;cursor:pointer}
+.grid-image-item img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.grid-image-item.single{aspect-ratio:auto;max-height:400px;overflow-y:auto;overflow-x:hidden;background:transparent}
+.grid-image-item.single img{width:100%;height:auto;object-fit:contain;display:block;border-radius:6px}
+.grid-add-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;aspect-ratio:1/1;border:1px dashed var(--c-primary-light);border-radius:6px;background:rgba(245,249,255,.3);color:var(--c-primary-dark);font-weight:600;cursor:pointer;font-size:.75rem}
+.grid-add-btn:hover{background:rgba(220,235,255,.9)}
+.grid-add-btn i{font-size:1.2rem;margin-bottom:4px}
+.img-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:10;font-size:.75rem}
+body.edit-mode .grid-image-item:hover .img-edit-overlay{display:flex}
+.img-delete-btn{display:none;position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(239,68,68,.9);color:#fff;border-radius:50%;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer;z-index:20}
+body.edit-mode .grid-image-item:hover .img-delete-btn{display:flex}
+.feed-actions-row{display:none;justify-content:flex-end;gap:12px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--c-border)}
+body.edit-mode .feed-actions-row{display:flex}
+.action-btn{font-size:.75rem;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px}
+.action-btn.pin-btn{color:#d97706;background:rgba(253,230,138,.3)}
+.action-btn.unpin-btn{color:#6b7280;background:rgba(243,244,246,.8)}
+.action-btn.delete-btn{color:#ef4444;background:rgba(254,226,226,.5)}
+.add-actions{display:none;gap:10px;margin-top:8px}
+body.edit-mode .add-actions{display:flex}
+.add-new-feed-btn{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:12px;background:rgba(245,249,255,.6);border:2px dashed var(--c-primary-light);border-radius:12px;color:var(--c-primary-dark);font-weight:700;cursor:pointer;font-size:.8rem}
+.add-new-feed-btn i{font-size:1.2rem;margin-bottom:6px}
+.accordion-item{background:#fff;border-radius:14px;margin-bottom:12px;border:1px solid var(--c-border);overflow:hidden}
+.accordion-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;background:rgba(250,253,255,.9)}
+.accordion-icon{width:30px;height:30px;border-radius:10px;background:rgba(107,155,210,.1);color:var(--c-primary);display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.accordion-title{font-weight:700;font-size:.9rem;flex:1;outline:none;border-radius:4px;padding:2px 4px;margin-left:-4px}
+body.edit-mode .accordion-title{background:rgba(255,255,255,.8);border:1px dashed var(--c-primary-light);cursor:text}
+.accordion-arrow{color:var(--c-text-muted);transition:transform .3s;font-size:.8rem}
+.accordion-item.active .accordion-arrow{transform:rotate(180deg)}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s;padding:0 16px}
+.accordion-item.active .accordion-body{max-height:500px;padding:0 16px 16px}
+.accordion-desc{font-size:.85rem;color:var(--c-text-sub);line-height:1.6;border-top:1px dashed var(--c-border);padding-top:12px;outline:none;max-height:200px;overflow-y:auto;padding-right:6px}
+body.edit-mode .accordion-desc{background:#f8fbff;border-radius:8px;padding:10px;border:1px solid var(--c-primary-light);cursor:text}
+.add-acc-btn{display:none;width:100%;padding:12px;background:rgba(245,249,255,.6);border:2px dashed var(--c-primary-light);border-radius:12px;color:var(--c-primary-dark);font-weight:700;cursor:pointer;text-align:center;font-size:.8rem;margin-top:16px}
+body.edit-mode .add-acc-btn{display:block}
+.end-note{text-align:center;padding:20px 0 40px;color:var(--c-text-muted);font-size:.75rem}
+.pwd-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:999}
+.pwd-overlay.active{display:flex}
+.pwd-card{background:#fff;padding:24px 20px;border-radius:20px;width:90%;max-width:320px;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.2)}
+.pwd-icon{font-size:1.8rem;color:var(--c-primary);margin-bottom:10px}
+.pwd-title{font-weight:800;font-size:1rem;margin-bottom:6px}
+.pwd-desc{font-size:.8rem;color:var(--c-text-sub);margin-bottom:16px}
+.pwd-input{width:100%;padding:10px;border:2px solid var(--c-border);border-radius:10px;font-size:1rem;text-align:center;letter-spacing:4px;outline:none;margin-bottom:14px}
+.pwd-actions{display:flex;gap:10px}
+.pwd-btn{flex:1;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;border:none;font-size:.85rem}
+.pwd-btn-cancel{background:#f1f5f9;color:var(--c-text-sub)}
+.pwd-btn-confirm{background:var(--c-primary);color:#fff}
+.pwd-error{color:#ef4444;font-size:.75rem;margin-top:6px;display:none}
+.pwd-error.show{display:block}
+.edit-text-modal textarea{width:100%;height:120px;padding:12px;border:2px solid var(--c-border);border-radius:10px;font-size:.95rem;outline:none;resize:none;margin-bottom:16px;font-family:inherit;line-height:1.5;color:var(--c-text-main)}
+.music-config-modal .pwd-input{letter-spacing:normal;text-align:left;font-size:.8rem;padding:10px}
+.music-config-modal label{display:block;text-align:left;font-size:.7rem;font-weight:600;color:var(--c-text-sub);margin-bottom:4px;margin-top:8px}
+.add-acc-modal .pwd-input{letter-spacing:normal;text-align:left;font-size:.85rem;padding:10px;margin-bottom:10px}
+.add-acc-modal textarea{width:100%;height:100px;padding:10px;border:2px solid var(--c-border);border-radius:8px;font-size:.85rem;outline:none;resize:none;margin-bottom:10px;font-family:inherit}
+.hidden-file{display:none}
+.image-preview-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:9999}
+.image-preview-overlay.active{display:flex}
+.preview-container{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.preview-container::-webkit-scrollbar{display:none}
+.preview-slide{flex:0 0 100%;width:100%;height:100%;display:flex;justify-content:center;align-items:center;scroll-snap-align:center}
+.preview-slide img{max-width:95%;max-height:90%;object-fit:contain;border-radius:4px;pointer-events:none}
+.preview-indicator{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.8);font-size:.85rem;background:rgba(0,0,0,.5);padding:4px 12px;border-radius:20px;pointer-events:none}
+.preview-close-btn{position:absolute;top:20px;right:20px;color:rgba(255,255,255,.8);font-size:2rem;cursor:pointer;z-index:10000;padding:10px;line-height:1}
+.export-btn{position:fixed;right:12px;bottom:12px;z-index:9999;background:var(--c-primary);color:#fff;padding:10px 14px;border-radius:8px;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.export-btn:hover{background:var(--c-primary-dark)}
+.loading-tip{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.6);color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;z-index:10001;display:none}
+@media(max-width:500px){
+.navbar{padding:12px 16px}.profile-cover{height:120px}.profile-header{padding:0 16px;margin-top:-40px}.avatar{width:80px;height:80px}.display-name{font-size:1.3rem}.tab{padding:12px 4px 10px;font-size:.75rem}.panel-scroll{padding:12px 12px 30px}.feed-text{font-size:.8rem}.music-title{max-width:80px;font-size:.65rem}.music-btn{width:30px;height:30px;font-size:.9rem}
+}
+</style>
+</head>
+<body>
+<audio id="bgMusic" loop preload="auto"></audio>
+
+<div class="homepage">
+  <div class="navbar">
+    <div class="music-player">
+      <div class="music-edit-hint" id="musicEditHint">更换音乐</div>
+      <div class="music-btn" id="musicPlayBtn"><i class="fas fa-play" id="musicIcon"></i></div>
+      <div class="music-info">
+        <span class="music-title" id="musicTitleDisplay"></span>
+        <span class="music-artist" id="musicArtistDisplay"></span>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <div class="mode-toggle" id="modeToggle">
+        <div class="mode-btn active" data-mode="preview">预览</div>
+        <div class="mode-btn" data-mode="edit">编辑</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-cover" id="profileCover">
+    <div class="cover-edit-overlay" id="triggerCoverUpload"><i class="fas fa-image"></i> 更换封面</div>
+    <input type="file" id="coverInput" accept="image/*" class="hidden-file">
+  </div>
+
+  <div class="profile-header">
+    <div class="avatar-wrapper" id="avatarWrapper">
+      <div class="avatar" id="mainAvatar"><img id="mainAvatarImg" src="" alt=""></div>
+      <div class="avatar-edit-overlay" id="triggerAvatarUpload"><i class="fas fa-camera"></i></div>
+      <input type="file" id="avatarInput" accept="image/*" class="hidden-file">
+    </div>
+    <div class="profile-stats">
+      <div class="stat-item"><span class="stat-number" id="statFollowing" contenteditable="false"></span><span class="stat-label">关注</span></div>
+      <div class="stat-item"><span class="stat-number" id="statFollowers" contenteditable="false"></span><span class="stat-label">粉丝</span></div>
+      <div class="stat-item"><span class="stat-number" id="statPosts">0</span><span class="stat-label">帖子</span></div>
+    </div>
+  </div>
+
+  <div class="user-info">
+    <div class="display-name" id="editName" contenteditable="false"></div>
+    <div class="username" id="editUsername" contenteditable="false"><i class="fas fa-at"></i> <span id="usernameDisplay"></span></div>
+    <div class="custom-signature" id="editSignature" contenteditable="false"></div>
+    <div class="bio" id="editBio"></div>
+    <div class="join-date" id="editJoinDate" contenteditable="false"></div>
+  </div>
+
+  <div class="profile-tabs" id="tabsContainer">
+    <div class="tab active" data-tab="tab1">日常</div>
+    <div class="tab" data-tab="tab2">须知</div>
+    <div class="tab" data-tab="tab3">头牌</div>
+    <div class="tab" data-tab="tab4">板评</div>
+    <div class="tab" data-tab="tab5">话术</div>
+    <div class="tab" data-tab="tab6">冠名</div>
+  </div>
+
+  <div class="tab-panels">
+    <div class="tab-panel active" id="tab1"><div class="panel-scroll"><div class="design-post" id="feed-post-1"></div></div></div>
+    <div class="tab-panel" id="tab2"><div class="panel-scroll"><div id="accordionContainer"></div><div class="add-acc-btn" onclick="openAddAccordionModal()">+ 添加新版块</div></div></div>
+    <div class="tab-panel" id="tab3"><div class="panel-scroll"><div class="design-post" id="feed-post-3"></div></div></div>
+    <div class="tab-panel" id="tab4"><div class="panel-scroll"><div class="design-post" id="feed-post-4"></div></div></div>
+    <div class="tab-panel" id="tab5"><div class="panel-scroll"><div class="design-post" id="feed-post-5"></div></div></div>
+    <div class="tab-panel" id="tab6"><div class="panel-scroll"><div class="design-post" id="feed-post-6"></div></div></div>
+  </div>
+
+  <div class="end-note"><i class="fas fa-circle"></i> 已经到底了</div>
+</div>
+
+<div class="pwd-overlay" id="pwdOverlay">
+  <div class="pwd-card">
+    <div class="pwd-icon"><i class="fas fa-lock"></i></div>
+    <div class="pwd-title">输入编辑密钥</div>
+    <div class="pwd-desc">请输入密码以切换到编辑模式</div>
+    <input type="password" class="pwd-input" id="pwdInput" placeholder="••••" maxlength="8">
+    <div class="pwd-error" id="pwdError">密钥错误，请重试</div>
+    <div class="pwd-actions">
+      <button class="pwd-btn pwd-btn-cancel" id="pwdCancel">取消</button>
+      <button class="pwd-btn pwd-btn-confirm" id="pwdConfirm">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="pwd-overlay" id="textEditOverlay">
+  <div class="pwd-card edit-text-modal">
+    <div class="pwd-icon"><i class="fas fa-pen-nib"></i></div>
+    <div class="pwd-title">修改文字内容</div>
+    <div class="pwd-desc">保存后请点右下角“导出数据”</div>
+    <textarea id="textEditArea"></textarea>
+    <div class="pwd-actions">
+      <button class="pwd-btn pwd-btn-cancel" onclick="document.getElementById('textEditOverlay').classList.remove('active')">取消</button>
+      <button class="pwd-btn pwd-btn-confirm" onclick="saveTextOnlyEdit()">保存修改</button>
+    </div>
+  </div>
+</div>
+
+<div class="pwd-overlay" id="musicConfigOverlay">
+  <div class="pwd-card music-config-modal">
+    <div class="pwd-icon"><i class="fas fa-music"></i></div>
+    <div class="pwd-title">配置音乐</div>
+    <label>歌曲 ID</label>
+    <input type="text" class="pwd-input" id="configMusicId">
+    <label>歌曲名称</label>
+    <input type="text" class="pwd-input" id="configMusicTitle">
+    <label>歌手</label>
+    <input type="text" class="pwd-input" id="configMusicArtist">
+    <div class="pwd-actions" style="margin-top:12px">
+      <button class="pwd-btn pwd-btn-cancel" onclick="document.getElementById('musicConfigOverlay').classList.remove('active')">取消</button>
+      <button class="pwd-btn pwd-btn-confirm" onclick="saveMusicConfig()">保存配置</button>
+    </div>
+  </div>
+</div>
+
+<div class="pwd-overlay" id="addAccOverlay">
+  <div class="pwd-card add-acc-modal">
+    <div class="pwd-icon"><i class="fas fa-plus-circle"></i></div>
+    <div class="pwd-title">新增须知版块</div>
+    <input type="text" class="pwd-input" id="newAccTitle" placeholder="版块标题">
+    <textarea id="newAccContent" placeholder="版块内容..."></textarea>
+    <div class="pwd-actions">
+      <button class="pwd-btn pwd-btn-cancel" onclick="document.getElementById('addAccOverlay').classList.remove('active')">取消</button>
+      <button class="pwd-btn pwd-btn-confirm" onclick="saveNewAccordion()">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<div class="image-preview-overlay" id="imagePreviewOverlay">
+  <div class="preview-close-btn" onclick="closeImagePreview()"><i class="fas fa-times"></i></div>
+  <div class="preview-container" id="previewContainer"></div>
+  <div class="preview-indicator" id="previewIndicator"></div>
+</div>
+
+<input type="file" id="globalImgInput" accept="image/*" multiple class="hidden-file">
+
+<div class="export-btn" id="exportDataBtn">导出数据</div>
+<div class="loading-tip" id="loadingTip">正在加载 data.json...</div>
+
+<script>
+const SITE_DATA = {
+  name:"琥珀",
+  username:"amber_starry",
+  signature:"半生漂泊，半生寻觅。",
+  bio:'<span><i class="fas fa-birthday-cake"></i> 21岁</span><span><i class="fas fa-star"></i> 双鱼座</span><span><i class="fas fa-brain"></i> INFP</span><span><i class="fas fa-users"></i> 星海旅团</span>',
+  join:'<span><i class="fas fa-map-marker-alt"></i> 上海 · 静安</span><span><i class="far fa-calendar-alt"></i> 2021年3月加入</span>',
+  following:"358",
+  followers:"2.4k",
+  cover:"",
+  avatar:"",
+  music:{id:"29722012",title:"新地球",artist:"林俊杰"},
+  feeds:{
+    "feed-post-1":[
+      {type:"text-img",text:"我拍下这张照片的时候，你还在我身边。现在照片还在，你走了。原来有些画面，从一开始就是用来怀念的。🖤",img:[],timestamp:1700000000000,pinned:false},
+      {type:"text-img",text:"你走之后，我学会了在凌晨三点给自己煮面，加两个荷包蛋，一个给你留着，凉了再倒掉。这个习惯，我改了很久都没改掉。",img:[],timestamp:1699900000000,pinned:false}
+    ],
+    "feed-post-3":[{type:"text-img",text:"收录了一些空洞的几何轨迹。",img:[],timestamp:1699800000000,pinned:false}],
+    "feed-post-4":[{type:"text-img",text:"“你问我还爱不爱你，我说不爱了。”",img:[],timestamp:1699700000000,pinned:false}],
+    "feed-post-5":[{type:"text-img",text:"“我没有在等你，我只是暂时还没办法喜欢上别人。”",img:[],timestamp:1699600000000,pinned:false}],
+    "feed-post-6":[{type:"text-img",text:"感谢「星海旅团」为本频道提供的独家冠名支持。",img:[],timestamp:1699500000000,pinned:false}]
+  },
+  accordion:[
+    {id:1,title:"互动指南与边界感",content:"欢迎来到琥珀的星空。私信前请先看主页简介，不接急单，不聊无关话题。感谢理解与尊重。"},
+    {id:2,title:"营业时间与回复频率",content:"通常在深夜出没，白天可能在补觉或者发呆。消息回复较慢，但看到一定会回。"}
+  ]
+};
+
+(function(){
+  let DATA = JSON.parse(JSON.stringify(SITE_DATA));
+
+  async function loadFromJson(){
+    const tip = document.getElementById('loadingTip');
+    tip.style.display = 'block';
+    try{
+      const resp = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+      if(resp.ok){
+        const json = await resp.json();
+        if(json && typeof json === 'object' && Object.keys(json).length){
+          DATA = json;
+          console.log('已从 data.json 加载数据');
+        }
+      }
+    }catch(e){
+      console.warn('data.json 读取失败，使用内置 SITE_DATA', e);
+    }finally{
+      tip.style.display = 'none';
+    }
+  }
+
+  function linkify(text){
+    const urlRegex = /((https?:\/\/)[^\s]+)/g;
+    return String(text || '').replace(urlRegex, url => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+  }
+
+  window.exportData = function(){
+    const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'data.json';
+    a.click();
+    console.log('已下载 data.json，请提交到仓库根目录覆盖旧文件');
+  };
+  document.getElementById('exportDataBtn').onclick = window.exportData;
+
+  const bgMusic = document.getElementById('bgMusic');
+  const musicPlayBtn = document.getElementById('musicPlayBtn');
+  const musicIcon = document.getElementById('musicIcon');
+  const musicEditHint = document.getElementById('musicEditHint');
+  const musicConfigOverlay = document.getElementById('musicConfigOverlay');
+  let isPlaying = false;
+
+  function applyMusic(){
+    const m = DATA.music || {};
+    document.getElementById('musicTitleDisplay').textContent = m.title || '未知歌曲';
+    document.getElementById('musicArtistDisplay').textContent = m.artist || '未知歌手';
+    if(m.id) bgMusic.src = `https://music.163.com/song/media/outer/url?id=${m.id}.mp3`;
+  }
+  applyMusic();
+
+  function attemptPlay(){
+    if(isPlaying) return;
+    const p = bgMusic.play();
+    if(p !== undefined) p.then(()=>{musicIcon.className='fas fa-pause';isPlaying=true;}).catch(()=>{});
+  }
+  document.addEventListener('click', function initPlay(){ attemptPlay(); document.removeEventListener('click', initPlay); }, {once:true});
+  musicPlayBtn.addEventListener('click', function(){
+    if(isPlaying){ bgMusic.pause(); musicIcon.className='fas fa-play'; isPlaying=false; } else { attemptPlay(); }
+  });
+  bgMusic.addEventListener('play', ()=>{ musicIcon.className='fas fa-pause'; isPlaying=true; });
+  bgMusic.addEventListener('pause', ()=>{ musicIcon.className='fas fa-play'; isPlaying=false; });
+
+  musicEditHint.addEventListener('click', function(){
+    if(!document.body.classList.contains('edit-mode')) return;
+    document.getElementById('configMusicId').value = DATA.music.id || '';
+    document.getElementById('configMusicTitle').value = DATA.music.title || '';
+    document.getElementById('configMusicArtist').value = DATA.music.artist || '';
+    musicConfigOverlay.classList.add('active');
+  });
+  window.saveMusicConfig = function(){
+    DATA.music = {
+      id: document.getElementById('configMusicId').value.trim(),
+      title: document.getElementById('configMusicTitle').value.trim() || '未知歌曲',
+      artist: document.getElementById('configMusicArtist').value.trim() || '未知歌手'
+    };
+    applyMusic();
+    musicConfigOverlay.classList.remove('active');
+  };
+
+  const imagePreviewOverlay = document.getElementById('imagePreviewOverlay');
+  const previewContainer = document.getElementById('previewContainer');
+  const previewIndicator = document.getElementById('previewIndicator');
+  window.openImagePreview = function(images, currentIndex){
+    previewContainer.innerHTML = '';
+    images.forEach(src=>{
+      const slide = document.createElement('div');
+      slide.className='preview-slide';
+      const img = document.createElement('img');
+      img.src = src;
+      slide.appendChild(img);
+      previewContainer.appendChild(slide);
+    });
+    const update = ()=>{
+      const i = Math.round(previewContainer.scrollLeft / previewContainer.clientWidth) + 1;
+      previewIndicator.textContent = `${i} / ${images.length}`;
+    };
+    setTimeout(()=>{ previewContainer.scrollLeft = previewContainer.clientWidth * currentIndex; update(); }, 50);
+    previewContainer.onscroll = update;
+    imagePreviewOverlay.classList.add('active');
+  };
+  window.closeImagePreview = function(){
+    imagePreviewOverlay.classList.remove('active');
+    previewContainer.innerHTML = '';
+    previewIndicator.textContent = '';
+  };
+  document.addEventListener('contextmenu', e => { if(e.target.tagName === 'IMG') e.preventDefault(); });
+
+  let currentPostIndex = -1, currentImageIndex = -1, currentEditingPostId = null, currentEditingIndex = null;
+  let uploadPostId = 'feed-post-1';
+  const SECRET_KEY = '3344';
+
+  function formatTimeAgo(ts){
+    const diff = Date.now() - ts;
+    const m = Math.floor(diff / 60000);
+    if(m < 1) return '刚刚';
+    if(m < 60) return `${m}分钟前`;
+    const h = Math.floor(m / 60);
+    if(h < 24) return `${h}小时前`;
+    return `${Math.floor(h / 24)}天前`;
+  }
+
+  function compressImage(file, maxW=1200, maxH=1200, quality=0.7){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = ev=>{
+        const img = new Image();
+        img.src = ev.target.result;
+        img.onload = ()=>{
+          let w = img.width, h = img.height;
+          if(w > maxW || h > maxH){
+            if(w > h){ if(w > maxW){ h = Math.round(h*maxW/w); w = maxW; } }
+            else { if(h > maxH){ w = Math.round(w*maxH/h); h = maxH; } }
+          }
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  }
+
+  function renderProfile(){
+    document.getElementById('editName').innerHTML = (DATA.name || '') + ' <i class="fas fa-certificate" style="color:var(--c-primary)"></i>';
+    document.getElementById('usernameDisplay').textContent = DATA.username || '';
+    document.title = (DATA.username || '') + "'s Starry Sky";
+    document.getElementById('editSignature').innerText = DATA.signature || '';
+    document.getElementById('editBio').innerHTML = DATA.bio || '';
+    document.getElementById('editJoinDate').innerHTML = DATA.join || '';
+    document.getElementById('statFollowing').textContent = DATA.following || '';
+    document.getElementById('statFollowers').textContent = DATA.followers || '';
+    document.getElementById('profileCover').style.backgroundImage = DATA.cover ? `url(${DATA.cover})` : '';
+    const av = document.getElementById('mainAvatarImg');
+    if(DATA.avatar){ av.src = DATA.avatar; document.getElementById('mainAvatar').classList.add('has-img'); }
+    else { av.src = ''; document.getElementById('mainAvatar').classList.remove('has-img'); }
+  }
+
+  function renderFeeds(postId, containerId){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    if(!DATA.feeds[postId]) DATA.feeds[postId] = [];
+    const feeds = DATA.feeds[postId].slice().sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+    container.innerHTML = '';
+
+    feeds.forEach((item, index)=>{
+      const feedItem = document.createElement('div');
+      feedItem.className = 'feed-item' + (item.pinned ? ' pinned' : '');
+      if(item.pinned){
+        const badge = document.createElement('div');
+        badge.className = 'pinned-badge';
+        badge.innerHTML = '<i class="fas fa-thumbtack"></i> 置顶';
+        feedItem.appendChild(badge);
+      }
+
+      const header = document.createElement('div');
+      header.className = 'feed-header';
+      const avatarDiv = document.createElement('div');
+      avatarDiv.className = 'feed-avatar';
+      if(DATA.avatar){ avatarDiv.classList.add('has-img'); avatarDiv.innerHTML = `<img src="${DATA.avatar}" alt="">`; }
+      header.appendChild(avatarDiv);
+
+      const meta = document.createElement('div');
+      meta.className = 'feed-meta';
+      meta.innerHTML = `<span class="feed-name">${DATA.name || ''}</span><span class="feed-username">@${DATA.username || ''}</span>`;
+      header.appendChild(meta);
+
+      const time = document.createElement('span');
+      time.className = 'feed-time';
+      time.innerText = '· ' + formatTimeAgo(item.timestamp || Date.now());
+      header.appendChild(time);
+      feedItem.appendChild(header);
+
+      if(item.type !== 'img'){
+        const wrap = document.createElement('div');
+        wrap.className = 'feed-text-wrapper';
+        const textDiv = document.createElement('div');
+        textDiv.className = 'feed-text';
+        textDiv.setAttribute('contenteditable', 'false');
+        textDiv.dataset.postid = postId;
+        textDiv.dataset.index = index;
+        textDiv.innerHTML = linkify(item.text || '');
+        wrap.appendChild(textDiv);
+        const editBtn = document.createElement('div');
+        editBtn.className = 'feed-text-edit-btn';
+        editBtn.innerHTML = '<i class="fas fa-pen"></i>';
+        editBtn.onclick = e=>{
+          e.stopPropagation();
+          if(!document.body.classList.contains('edit-mode')) return;
+          currentEditingPostId = postId;
+          currentEditingIndex = index;
+          document.getElementById('textEditArea').value = item.text || '';
+          document.getElementById('textEditOverlay').classList.add('active');
+        };
+        wrap.appendChild(editBtn);
+        feedItem.appendChild(wrap);
+      }
+
+      if(item.type !== 'text'){
+        const grid = document.createElement('div');
+        grid.className = 'feed-image-grid';
+        grid.dataset.count = Math.max(1, item.img.length);
+        item.img.forEach((src, imgIdx)=>{
+          const box = document.createElement('div');
+          box.className = 'grid-image-item' + (item.img.length === 1 ? ' single' : '');
+          const img = document.createElement('img');
+          img.src = src;
+          box.appendChild(img);
+          box.onclick = e=>{ e.stopPropagation(); window.openImagePreview(item.img, imgIdx); };
+          const overlay = document.createElement('div');
+          overlay.className = 'img-edit-overlay';
+          overlay.innerHTML = '<i class="fas fa-image"></i>';
+          overlay.onclick = e=>{
+            e.stopPropagation();
+            if(!document.body.classList.contains('edit-mode')) return;
+            currentPostIndex = index;
+            currentImageIndex = imgIdx;
+            uploadPostId = postId;
+            document.getElementById('globalImgInput').click();
+          };
+          box.appendChild(overlay);
+          const del = document.createElement('div');
+          del.className = 'img-delete-btn';
+          del.innerHTML = '<i class="fas fa-times"></i>';
+          del.onclick = e=>{
+            e.stopPropagation();
+            if(!document.body.classList.contains('edit-mode')) return;
+            if(confirm('确定删除这张图片吗？')){
+              DATA.feeds[postId][index].img.splice(imgIdx, 1);
+              renderFeeds(postId, containerId);
+            }
+          };
+          box.appendChild(del);
+          grid.appendChild(box);
+        });
+        if(document.body.classList.contains('edit-mode') && item.img.length < 3){
+          const add = document.createElement('div');
+          add.className = 'grid-add-btn';
+          add.innerHTML = '<i class="fas fa-plus"></i>';
+          add.onclick = e=>{
+            e.stopPropagation();
+            currentPostIndex = index;
+            currentImageIndex = -1;
+            uploadPostId = postId;
+            document.getElementById('globalImgInput').click();
+          };
+          grid.appendChild(add);
+        }
+        feedItem.appendChild(grid);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'feed-actions-row';
+      const pinBtn = document.createElement('div');
+      pinBtn.className = 'action-btn ' + (item.pinned ? 'unpin-btn' : 'pin-btn');
+      pinBtn.innerHTML = item.pinned ? '<i class="fas fa-thumbtack"></i> 取消置顶' : '<i class="fas fa-thumbtack"></i> 置顶';
+      pinBtn.onclick = ()=>{
+        if(!document.body.classList.contains('edit-mode')) return;
+        DATA.feeds[postId].forEach(f => f.pinned = false);
+        DATA.feeds[postId][index].pinned = !DATA.feeds[postId][index].pinned;
+        renderFeeds(postId, containerId);
+      };
+      actions.appendChild(pinBtn);
+      if(DATA.feeds[postId].length > 1){
+        const del = document.createElement('div');
+        del.className = 'action-btn delete-btn';
+        del.innerHTML = '<i class="fas fa-trash"></i> 删除帖子';
+        del.onclick = ()=>{
+          if(!document.body.classList.contains('edit-mode')) return;
+          if(confirm('确定删除这组图文吗？')){
+            DATA.feeds[postId].splice(index, 1);
+            renderFeeds(postId, containerId);
+          }
+        };
+        actions.appendChild(del);
+      }
+      feedItem.appendChild(actions);
+      container.appendChild(feedItem);
+    });
+
+    const addActions = document.createElement('div');
+    addActions.className = 'add-actions';
+    ['图文', '图片', '文字'].forEach((label, i)=>{
+      const btn = document.createElement('div');
+      btn.className = 'add-new-feed-btn';
+      btn.innerHTML = `<i class="fas fa-${i===0?'edit':i===1?'image':'font'}"></i> ${label}`;
+      btn.onclick = ()=>{
+        if(!document.body.classList.contains('edit-mode')) return;
+        const type = i===0?'text-img':i===1?'img':'text';
+        DATA.feeds[postId].push({type, text: type==='img'?'':'新的内容...', img:[], timestamp: Date.now(), pinned:false});
+        renderFeeds(postId, containerId);
+      };
+      addActions.appendChild(btn);
+    });
+    container.appendChild(addActions);
+  }
+
+  function initAllFeeds(){
+    renderFeeds('feed-post-1', 'feed-post-1');
+    document.getElementById('statPosts').textContent = (DATA.feeds['feed-post-1'] || []).length;
+    ['feed-post-3', 'feed-post-4', 'feed-post-5', 'feed-post-6'].forEach(id => renderFeeds(id, id));
+  }
+
+  function renderAccordion(){
+    const container = document.getElementById('accordionContainer');
+    container.innerHTML = '';
+    DATA.accordion.forEach((item, index)=>{
+      const acc = document.createElement('div');
+      acc.className = 'accordion-item';
+      const header = document.createElement('div');
+      header.className = 'accordion-header';
+      header.onclick = ()=> acc.classList.toggle('active');
+      header.innerHTML = `<div class="accordion-icon"><i class="fas fa-book-open"></i></div>`;
+      const title = document.createElement('div');
+      title.className = 'accordion-title';
+      title.setAttribute('contenteditable', 'false');
+      title.innerText = item.title;
+      title.addEventListener('blur', function(){
+        if(!document.body.classList.contains('edit-mode')) return;
+        DATA.accordion[index].title = this.innerText.trim() || item.title;
+      });
+      header.appendChild(title);
+      header.innerHTML += '<i class="fas fa-chevron-down accordion-arrow"></i>';
+      acc.appendChild(header);
+
+      const body = document.createElement('div');
+      body.className = 'accordion-body';
+      const desc = document.createElement('div');
+      desc.className = 'accordion-desc';
+      desc.setAttribute('contenteditable', 'false');
+      desc.innerHTML = linkify(item.content);
+      desc.addEventListener('blur', function(){
+        if(!document.body.classList.contains('edit-mode')) return;
+        DATA.accordion[index].content = this.innerHTML;
+      });
+      body.appendChild(desc);
+      acc.appendChild(body);
+      container.appendChild(acc);
+    });
+  }
+
+  window.openAddAccordionModal = function(){
+    if(!document.body.classList.contains('edit-mode')) return;
+    document.getElementById('newAccTitle').value = '';
+    document.getElementById('newAccContent').value = '';
+    document.getElementById('addAccOverlay').classList.add('active');
+  };
+  window.saveNewAccordion = function(){
+    const title = document.getElementById('newAccTitle').value.trim();
+    const content = document.getElementById('newAccContent').value.trim();
+    if(!title){ alert('请输入标题'); return; }
+    DATA.accordion.push({ id: Date.now(), title, content: content || '暂无内容' });
+    renderAccordion();
+    document.getElementById('addAccOverlay').classList.remove('active');
+  };
+
+  const body = document.body;
+  const pwdOverlay = document.getElementById('pwdOverlay');
+  const pwdInput = document.getElementById('pwdInput');
+  const pwdError = document.getElementById('pwdError');
+  const modeBtns = document.querySelectorAll('.mode-btn');
+
+  function setMode(mode){
+    if(mode === 'edit'){
+      body.classList.add('edit-mode');
+      document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'true'));
+      document.querySelectorAll('.feed-text').forEach(el => el.setAttribute('contenteditable', 'true'));
+    } else {
+      body.classList.remove('edit-mode');
+      document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
+      document.querySelectorAll('.feed-text').forEach(el => el.setAttribute('contenteditable', 'false'));
+    }
+    renderProfile();
+    initAllFeeds();
+    renderAccordion();
+    modeBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+  }
+
+  modeBtns.forEach(btn=>{
+    btn.addEventListener('click', function(){
+      if(this.classList.contains('active')) return;
+      if(this.dataset.mode === 'edit'){
+        pwdOverlay.classList.add('active');
+        pwdInput.value = '';
+        pwdError.classList.remove('show');
+        setTimeout(()=>pwdInput.focus(), 100);
+      } else {
+        setMode('preview');
+      }
+    });
+  });
+
+  document.getElementById('pwdConfirm').addEventListener('click', function(){
+    if(pwdInput.value === SECRET_KEY){
+      setMode('edit');
+      pwdOverlay.classList.remove('active');
+    } else {
+      pwdError.classList.add('show');
+      pwdInput.value = '';
+    }
+  });
+  document.getElementById('pwdCancel').addEventListener('click', ()=> pwdOverlay.classList.remove('active'));
+
+  window.saveTextOnlyEdit = function(){
+    const val = document.getElementById('textEditArea').value;
+    if(currentEditingPostId !== null && currentEditingIndex !== null){
+      const feeds = DATA.feeds[currentEditingPostId];
+      if(feeds && feeds[currentEditingIndex]){
+        feeds[currentEditingIndex].text = val;
+        if(!val.trim()) feeds[currentEditingIndex].type = 'img';
+        else if(feeds[currentEditingIndex].type === 'img') feeds[currentEditingIndex].type = 'text-img';
+        renderFeeds(currentEditingPostId, currentEditingPostId);
+      }
+    }
+    document.getElementById('textEditOverlay').classList.remove('active');
+  };
+
+  document.addEventListener('blur', function(e){
+    const t = e.target;
+    if(t.getAttribute('contenteditable') !== 'true') return;
+    if(t.id === 'editUsername'){
+      const raw = t.innerText.replace('@', '').trim();
+      if(raw){ DATA.username = raw; renderProfile(); initAllFeeds(); }
+      return;
+    }
+    if(t.id === 'editName'){
+      DATA.name = t.innerText.replace(/<i class="fas fa-certificate".*?<\/i>/, '').trim();
+      renderProfile(); return;
+    }
+    if(t.id === 'editSignature'){ DATA.signature = t.innerText; return; }
+    const bio = t.closest('#editBio');
+    if(bio){ DATA.bio = bio.innerHTML; return; }
+    const join = t.closest('#editJoinDate');
+    if(join){ DATA.join = join.innerHTML; return; }
+    if(t.id === 'statFollowing'){ DATA.following = t.innerText; return; }
+    if(t.id === 'statFollowers'){ DATA.followers = t.innerText; return; }
+    if(t.classList.contains('feed-text')){
+      const postId = t.dataset.postid;
+      const index = parseInt(t.dataset.index);
+      const feeds = DATA.feeds[postId];
+      if(feeds && feeds[index]){
+        feeds[index].text = t.innerText;
+        if(!t.innerText.trim() && feeds[index].type === 'text-img') feeds[index].type = 'img';
+      }
+    }
+  }, true);
+
+  const coverInput = document.getElementById('coverInput');
+  document.getElementById('triggerCoverUpload').addEventListener('click', ()=>{ if(body.classList.contains('edit-mode')) coverInput.click(); });
+  coverInput.addEventListener('change', async function(e){
+    const f = e.target.files[0]; if(!f) return;
+    DATA.cover = await compressImage(f);
+    renderProfile();
+  });
+
+  const avatarInput = document.getElementById('avatarInput');
+  document.getElementById('triggerAvatarUpload').addEventListener('click', ()=>{ if(body.classList.contains('edit-mode')) avatarInput.click(); });
+  avatarInput.addEventListener('change', async function(e){
+    const f = e.target.files[0]; if(!f) return;
+    DATA.avatar = await compressImage(f, 300, 300);
+    renderProfile(); initAllFeeds();
+  });
+
+  const globalImgInput = document.getElementById('globalImgInput');
+  globalImgInput.addEventListener('change', async function(e){
+    const files = e.target.files;
+    if(!files || !files.length || currentPostIndex === -1) return;
+    const feeds = DATA.feeds[uploadPostId || 'feed-post-1'];
+    if(!feeds || !feeds[currentPostIndex]){ this.value = ''; return; }
+    if(currentImageIndex === -1){
+      const remain = 3 - feeds[currentPostIndex].img.length;
+      if(remain <= 0){ alert('最多 3 张'); this.value = ''; return; }
+      const arr = Array.from(files).slice(0, remain);
+      for(const f of arr) feeds[currentPostIndex].img.push(await compressImage(f));
+    } else {
+      feeds[currentPostIndex].img[currentImageIndex] = await compressImage(files[0]);
+    }
+    this.value = '';
+    const pid = uploadPostId || 'feed-post-1';
+    renderFeeds(pid, pid);
+  });
+
+  document.querySelectorAll('.design-post').forEach(el=>{
+    el.addEventListener('click', ()=>{ uploadPostId = el.id; }, true);
+  });
+
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById(this.dataset.tab).classList.add('active');
+    });
+  });
+
+  (async function init(){
+    await loadFromJson();
+    renderProfile();
+    initAllFeeds();
+    renderAccordion();
+    setMode('preview');
+  })();
+})();
+</script>
+</body>
+</html>

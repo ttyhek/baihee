@@ -48,9 +48,10 @@ body.edit-mode .stat-number{background:rgba(255,255,255,.6);border:1px dashed va
 .username{color:var(--c-text-sub);font-size:.85rem;margin-top:4px;outline:none;border-radius:8px;padding:2px 6px;margin-left:-6px;display:inline-block}
 .custom-signature{margin-top:8px;font-size:.85rem;color:var(--c-text-sub);outline:none;border-radius:8px;padding:2px 6px;margin-left:-6px;display:inline-block}
 .bio{margin-top:12px;font-size:.85rem;line-height:1.5;background:linear-gradient(to right,rgba(240,248,255,.8),rgba(240,248,255,.4));padding:12px 14px;border-radius:14px;border-left:3px solid var(--c-primary);display:flex;flex-wrap:wrap;gap:10px 16px;outline:none}
-.bio span{display:flex;align-items:center;gap:5px;font-weight:500;outline:none}
+.bio .bio-item{display:flex;align-items:center;gap:5px;font-weight:500;outline:none;border-radius:4px;padding:1px 3px}
 .join-date{margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;font-size:.75rem;color:var(--c-text-sub);outline:none}
-body.edit-mode .display-name,body.edit-mode .username,body.edit-mode .custom-signature,body.edit-mode .bio span,body.edit-mode .join-date{background:rgba(255,255,255,.6);border:1px dashed var(--c-primary-light);cursor:text}
+.join-date .join-item{display:flex;align-items:center;gap:5px;outline:none;border-radius:4px;padding:1px 3px}
+body.edit-mode .display-name,body.edit-mode .username,body.edit-mode .custom-signature,body.edit-mode .bio .bio-item,body.edit-mode .join-date .join-item{background:rgba(255,255,255,.6);border:1px dashed var(--c-primary-light);cursor:text}
 .profile-tabs{display:flex;border-bottom:1px solid var(--c-border);padding:0 8px;background:rgba(255,255,255,.8);position:sticky;top:60px;z-index:15;backdrop-filter:blur(8px);overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x}
 .profile-tabs::-webkit-scrollbar{display:none}
 .tab{padding:14px 8px 12px;font-weight:700;font-size:.85rem;color:var(--c-text-sub);border-bottom:3px solid transparent;cursor:pointer;flex:0 0 auto;min-width:64px;text-align:center;white-space:nowrap;outline:none;border-radius:6px 6px 0 0;user-select:none}
@@ -198,7 +199,7 @@ body.edit-mode .add-acc-btn{display:block}
     <div class="username" id="editUsername" contenteditable="false"><i class="fas fa-at"></i> <span id="usernameDisplay"></span></div>
     <div class="custom-signature" id="editSignature" contenteditable="false"></div>
     <div class="bio" id="editBio"></div>
-    <div class="join-date" id="editJoinDate" contenteditable="false"></div>
+    <div class="join-date" id="editJoinDate"></div>
   </div>
 
   <div class="profile-tabs" id="tabsContainer"></div>
@@ -278,13 +279,21 @@ const SITE_DATA = {
   name:"琥珀",
   username:"amber_starry",
   signature:"半生漂泊，半生寻觅。",
-  bio:'<span><i class="fas fa-birthday-cake"></i> 21岁</span><span><i class="fas fa-star"></i> 双鱼座</span><span><i class="fas fa-brain"></i> INFP</span><span><i class="fas fa-users"></i> 星海旅团</span>',
-  join:'<span><i class="fas fa-map-marker-alt"></i> 上海 · 静安</span><span><i class="far fa-calendar-alt"></i> 2021年3月加入</span>',
   following:"358",
   followers:"2.4k",
   cover:"",
   avatar:"",
   music:{id:"29722012",title:"新地球",artist:"林俊杰"},
+  bioFields:[
+    {icon:"fas fa-birthday-cake", text:"21岁"},
+    {icon:"fas fa-star", text:"双鱼座"},
+    {icon:"fas fa-brain", text:"INFP"},
+    {icon:"fas fa-users", text:"星海旅团"}
+  ],
+  joinFields:[
+    {icon:"fas fa-map-marker-alt", text:"上海 · 静安"},
+    {icon:"far fa-calendar-alt", text:"2021年3月加入"}
+  ],
   tabs:[
     {id:"tab1",title:"日常",type:"feed"},
     {id:"tab2",title:"须知",type:"accordion"},
@@ -312,6 +321,18 @@ const SITE_DATA = {
 (function(){
   let DATA = JSON.parse(JSON.stringify(SITE_DATA));
 
+  function normalizeData(){
+    if(!DATA.bioFields){
+      DATA.bioFields = JSON.parse(JSON.stringify(SITE_DATA.bioFields));
+    }
+    if(!DATA.joinFields){
+      DATA.joinFields = JSON.parse(JSON.stringify(SITE_DATA.joinFields));
+    }
+    if(!DATA.tabs || !DATA.tabs.length) DATA.tabs = JSON.parse(JSON.stringify(SITE_DATA.tabs));
+    if(!DATA.feeds) DATA.feeds = {};
+    if(!DATA.accordion) DATA.accordion = [];
+  }
+
   async function loadFromJson(){
     const tip = document.getElementById('loadingTip');
     tip.style.display = 'block';
@@ -321,8 +342,7 @@ const SITE_DATA = {
         const json = await resp.json();
         if(json && typeof json === 'object' && Object.keys(json).length){
           DATA = json;
-          if(!DATA.tabs || !DATA.tabs.length) DATA.tabs = JSON.parse(JSON.stringify(SITE_DATA.tabs));
-          if(!DATA.feeds) DATA.feeds = {};
+          normalizeData();
           console.log('已从 data.json 加载数据');
         }
       }
@@ -463,10 +483,35 @@ const SITE_DATA = {
     document.getElementById('usernameDisplay').textContent = DATA.username || '';
     document.title = (DATA.username || '') + "'s Starry Sky";
     document.getElementById('editSignature').innerText = DATA.signature || '';
-    document.getElementById('editBio').innerHTML = DATA.bio || '';
-    document.getElementById('editJoinDate').innerHTML = DATA.join || '';
     document.getElementById('statFollowing').textContent = DATA.following || '';
     document.getElementById('statFollowers').textContent = DATA.followers || '';
+
+    // bio 小项逐条渲染
+    const bioEl = document.getElementById('editBio');
+    bioEl.innerHTML = '';
+    (DATA.bioFields || []).forEach((f, i)=>{
+      const span = document.createElement('span');
+      span.className = 'bio-item';
+      span.dataset.index = i;
+      span.dataset.group = 'bio';
+      span.setAttribute('contenteditable', document.body.classList.contains('edit-mode') ? 'true' : 'false');
+      span.innerHTML = `<i class="${f.icon || 'fas fa-star'}"></i><span class="bio-text">${f.text || ''}</span>`;
+      bioEl.appendChild(span);
+    });
+
+    // join 小项逐条渲染
+    const joinEl = document.getElementById('editJoinDate');
+    joinEl.innerHTML = '';
+    (DATA.joinFields || []).forEach((f, i)=>{
+      const span = document.createElement('span');
+      span.className = 'join-item';
+      span.dataset.index = i;
+      span.dataset.group = 'join';
+      span.setAttribute('contenteditable', document.body.classList.contains('edit-mode') ? 'true' : 'false');
+      span.innerHTML = `<i class="${f.icon || 'fas fa-map-marker-alt'}"></i><span class="join-text">${f.text || ''}</span>`;
+      joinEl.appendChild(span);
+    });
+
     document.getElementById('profileCover').style.backgroundImage = DATA.cover ? `url(${DATA.cover})` : '';
     const av = document.getElementById('mainAvatarImg');
     if(DATA.avatar){ av.src = DATA.avatar; document.getElementById('mainAvatar').classList.add('has-img'); }
@@ -491,9 +536,7 @@ const SITE_DATA = {
     const panelsContainer = document.getElementById('tabPanels');
     tabsContainer.innerHTML = '';
     panelsContainer.innerHTML = '';
-    if(!DATA.tabs || !DATA.tabs.length){
-      DATA.tabs = JSON.parse(JSON.stringify(SITE_DATA.tabs));
-    }
+    if(!DATA.tabs || !DATA.tabs.length) DATA.tabs = JSON.parse(JSON.stringify(SITE_DATA.tabs));
     if(!DATA.tabs.some(t => t.id === activeTabId)) activeTabId = DATA.tabs[0].id;
 
     DATA.tabs.forEach((tab)=>{
@@ -788,11 +831,13 @@ const SITE_DATA = {
       document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'true'));
       document.querySelectorAll('.feed-text').forEach(el => el.setAttribute('contenteditable', 'true'));
       document.querySelectorAll('.accordion-title, .accordion-desc').forEach(el => el.setAttribute('contenteditable', 'true'));
+      document.querySelectorAll('.bio-item, .join-item').forEach(el => el.setAttribute('contenteditable', 'true'));
     } else {
       body.classList.remove('edit-mode');
       document.querySelectorAll('[contenteditable]').forEach(el => el.setAttribute('contenteditable', 'false'));
       document.querySelectorAll('.feed-text').forEach(el => el.setAttribute('contenteditable', 'false'));
       document.querySelectorAll('.accordion-title, .accordion-desc').forEach(el => el.setAttribute('contenteditable', 'false'));
+      document.querySelectorAll('.bio-item, .join-item').forEach(el => el.setAttribute('contenteditable', 'false'));
     }
     renderProfile();
     initAllFeeds();
@@ -852,10 +897,22 @@ const SITE_DATA = {
       renderProfile(); return;
     }
     if(t.id === 'editSignature'){ DATA.signature = t.innerText; return; }
-    const bio = t.closest('#editBio');
-    if(bio){ DATA.bio = bio.innerHTML; return; }
-    const join = t.closest('#editJoinDate');
-    if(join){ DATA.join = join.innerHTML; return; }
+    if(t.classList.contains('bio-item')){
+      const idx = parseInt(t.dataset.index);
+      const textEl = t.querySelector('.bio-text');
+      if(DATA.bioFields && DATA.bioFields[idx] && textEl){
+        DATA.bioFields[idx].text = textEl.innerText.trim();
+      }
+      return;
+    }
+    if(t.classList.contains('join-item')){
+      const idx = parseInt(t.dataset.index);
+      const textEl = t.querySelector('.join-text');
+      if(DATA.joinFields && DATA.joinFields[idx] && textEl){
+        DATA.joinFields[idx].text = textEl.innerText.trim();
+      }
+      return;
+    }
     if(t.id === 'statFollowing'){ DATA.following = t.innerText; return; }
     if(t.id === 'statFollowers'){ DATA.followers = t.innerText; return; }
     if(t.classList.contains('feed-text')){
@@ -905,6 +962,7 @@ const SITE_DATA = {
 
   (async function init(){
     await loadFromJson();
+    normalizeData();
     renderProfile();
     renderTabs();
     setMode('preview');
